@@ -12,7 +12,8 @@ jobs:
     name: Build radare2 extras and r2pipe
     runs-on: ubuntu-latest
     env:
-      TESTS: 'arm64v35 armthumb atombios baleful bcl ba2 blackfin blessr2 keystone-lib keystone rlang-duktape mc6809 microblaze msil pcap ppcdisasm psosvm swf unicorn-lib unicorn vc4 x86udis x86bea x86tab x86olly x86zyan z80-nc'
+      BUILDS: 'arm64v35 armthumb atombios baleful bcl ba2 blackfin blessr2 keystone-lib keystone rlang-duktape mc6809 microblaze msil pcap ppcdisasm psosvm swf unicorn-lib unicorn vc4 x86udis x86bea x86tab x86olly x86zyan z80-nc'
+      TESTS: 'microblaze yara'
       R2PIPE_TESTS: 'r2pipe-go r2pipe-js r2pipe-py'
     steps:
     - uses: actions/checkout@v2
@@ -38,9 +39,21 @@ jobs:
         set -e
         export R2PM_GITDIR=`pwd`
         export R2PM_GITSKIP=1
-        for p in $TESTS ; do
+        for p in $BUILDS ; do
           echo $p
           r2pm -i $p
+        done
+        set +e
+      with:
+        path: ./radare2/test
+   - name: Test plugins
+      run: |
+        set -e
+        export R2PM_GITDIR=`pwd`
+        export R2PM_GITSKIP=1
+        for p in $TESTS ; do
+          echo $p
+          make $p
         done
         set +e
     - name: Compile and install r2pipe
